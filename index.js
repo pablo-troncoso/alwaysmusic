@@ -16,35 +16,53 @@ const argumentos = process.argv.slice(2);
 const funcion = argumentos[0];
 
 // resto de posiciones los otros campos
-const id = argumentos[1];
-const name = argumentos[2];
-const lastname = argumentos[3];
+const nombre = argumentos[1];
+const rut = argumentos[2];
+const curso = argumentos[3];
+const nivel = argumentos[4];
 
-console.log("****************************");
+console.log("**********");
 console.log("Funcion: " + funcion);
-console.log("Id: " + id);
-console.log("Name: " + name);
-console.log("Lastname: " + lastname);
-console.log("****************************");
+console.log("Nombre: " + nombre);
+console.log("Rut: " + rut);
+console.log("Curso: " + curso);
+console.log("Nivel: " + nivel);
+console.log("**********");
 
-const getUsuario = async () => {
-  const res = await pool.query("SELECT * FROM usuarios");
-  console.log("Usuarios registrados:", res.rows);
-}
+//------------ pregunta 1-----
 
-const consultaId = async ({ id }) => {
-  const res = await pool.query(
-    `SELECT * FROM usuarios WHERE id='${id}'`
-  );
-  console.log("Usuario consultado: ", res.rows[0]);
-}
-const nuevoUsuario = async ({ nombre, rut, curso, nivel }) => {
+// funcion para agregar Alumnos
+const nuevoAlumno = async ({ nombre, rut, curso, nivel }) => {
   const res  = await pool.query(
-    `INSERT INTO usuarios values ('${nombre}','${rut}', '${curso}, ${nivel}') RETURNING *`
+    `INSERT INTO alumnos values ($1,$2,$3,$4) RETURNING *`,
+    [nombre, rut, curso, nivel]
   );
-  console.log(`Usuario ${name} ${lastname} agregado con éxito`);
-  console.log("Usuario Agregado: ", res.rows[0]);
+  console.log(`Alumno ${nombre} ${rut} agregado con éxito`);
+  console.log("Alumno Agregado: ", res.rows[0]);
 }
+
+//---------------preg 2--------------
+
+// funcion para consultar alumno por rut
+
+const consultaRut = async ({ rut }) => {
+  const res = await pool.query(
+    `SELECT * FROM alumnos WHERE rut='${rut}'`
+  );
+  console.log("Alumno consultado: ", res.rows[0]);
+}
+
+//---------------preg 3--------------
+
+// funcion para consultar todos los Alumnos registrados
+
+const getAlumno = async () => {
+  const res = await pool.query("SELECT * FROM alumnos");
+  console.log("Alumnos registrados:", res.rows);
+}
+
+
+
 
 
 // Funcion IIFE que recibe de la linea de comando y llama funciones asincronas internas
@@ -52,13 +70,13 @@ const nuevoUsuario = async ({ nombre, rut, curso, nivel }) => {
   // recibir funciones y campos de la linea de comando
   switch (funcion) {
     case 'agregar':
-      nuevoUsuario({ id, name, lastname })
+      nuevoAlumno({nombre,rut,curso,nivel})
       break;
-    case 'id':
-      consultaId({ id })
+    case 'rut':
+      consultaRut({ rut })
       break;
     case 'todos':
-      getUsuario()
+      getAlumno()
       break;
     default:
       console.log("Funcion: " + funcion + "no es valida")
@@ -67,6 +85,20 @@ const nuevoUsuario = async ({ nombre, rut, curso, nivel }) => {
   
   pool.end()
 })()
+
+// Función para eliminar un alumno por su rut
+const eliminarAlumno = async ({ rut }) => {
+    const res = await pool.query(
+      `DELETE FROM alumnos WHERE rut=$1 RETURNING *`,
+      [rut]
+    );
+    if (res.rowCount > 0) {
+      console.log(`Alumno con rut ${rut} eliminado con éxito`);
+      console.log("Alumno Eliminado: ", res.rows[0]);
+    } else {
+      console.log(`No se encontró ningún alumno con el rut ${rut}`);
+    }
+  }
 
 // instrucciones de uso;
 // consultar todos:  node index todos
