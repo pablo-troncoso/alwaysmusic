@@ -60,10 +60,35 @@ const getAlumno = async () => {
   const res = await pool.query("SELECT * FROM alumnos");
   console.log("Alumnos registrados:", res.rows);
 }
+//---------------preg 4--------------
+// Función para actualizar un alumno por su rut
+const actualizarAlumno = async ({ rut, nombre, curso, nivel }) => {
+    const res = await pool.query(
+      `UPDATE alumnos SET nombre=$1, curso=$2, nivel=$3 WHERE rut=$4 RETURNING *`,
+      [nombre, curso, nivel, rut]
+    );
+    if (res.rowCount > 0) {
+      console.log(`Alumno con rut ${rut} actualizado con éxito`);
+      console.log("Alumno Actualizado: ", res.rows[0]);
+    } else {
+      console.log(`No se encontró ningún alumno con el rut ${rut}`);
+    }
+  }
 
-
-
-
+//---------------preg 5--------------
+// Función para eliminar un alumno por su rut
+const eliminarAlumno = async ({ rut }) => {
+    const res = await pool.query(
+      `DELETE FROM alumnos WHERE rut=$1 RETURNING *`,
+      [rut]
+    );
+    if (res.rowCount > 0) {
+      console.log(`Alumno con rut ${rut} eliminado con éxito`);
+      console.log("Alumno Eliminado: ", res.rows[0]);
+    } else {
+      console.log(`No se encontró ningún alumno con el rut ${rut}`);
+    }
+  }  
 
 // Funcion IIFE que recibe de la linea de comando y llama funciones asincronas internas
 (async () => {
@@ -78,6 +103,12 @@ const getAlumno = async () => {
     case 'todos':
       getAlumno()
       break;
+    case 'actualizar':
+     actualizarAlumno({nombre,rut,curso,nivel})
+          break;
+    case 'eliminar':
+     eliminarAlumno({rut})
+      break;     
     default:
       console.log("Funcion: " + funcion + "no es valida")
       break;
@@ -86,21 +117,11 @@ const getAlumno = async () => {
   pool.end()
 })()
 
-// Función para eliminar un alumno por su rut
-const eliminarAlumno = async ({ rut }) => {
-    const res = await pool.query(
-      `DELETE FROM alumnos WHERE rut=$1 RETURNING *`,
-      [rut]
-    );
-    if (res.rowCount > 0) {
-      console.log(`Alumno con rut ${rut} eliminado con éxito`);
-      console.log("Alumno Eliminado: ", res.rows[0]);
-    } else {
-      console.log(`No se encontró ningún alumno con el rut ${rut}`);
-    }
-  }
+
 
 // instrucciones de uso;
 // consultar todos:  node index todos
-// consultar por id: node index id 4444
-// ingresar datos: node index agregar 7878 Loco Barrios
+// consultar por rut: node index rut 5555864
+// ingresar datos: node index agregar Abraham 5555864 trompeta quinto
+// actualizar datos: node index actualizar 5555864 piano sexto
+// eliminar datos: node index eliminar - 5555864
