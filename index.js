@@ -62,10 +62,10 @@ const getAlumno = async () => {
 }
 //---------------preg 4--------------
 // Función para actualizar un alumno por su rut
-const actualizarAlumno = async ({ rut, nombre, curso, nivel }) => {
+const actualizarAlumno = async ({ nombre, rut, curso, nivel }) => {
     const res = await pool.query(
       `UPDATE alumnos SET nombre=$1, curso=$2, nivel=$3 WHERE rut=$4 RETURNING *`,
-      [nombre, curso, nivel, rut]
+      [nombre, rut, curso, nivel]
     );
     if (res.rowCount > 0) {
       console.log(`Alumno con rut ${rut} actualizado con éxito`);
@@ -86,7 +86,7 @@ const eliminarAlumno = async ({ rut }) => {
       console.log(`Alumno con rut ${rut} eliminado con éxito`);
       console.log("Alumno Eliminado: ", res.rows[0]);
     } else {
-      console.log(`No se encontró ningún alumno con el rut ${rut}`);
+      console.log(`No se encontró el rut, revisa bien el rut ingresado ${rut}`);
     }
   }  
 
@@ -121,7 +121,7 @@ const eliminarAlumno = async ({ rut }) => {
 
 // instrucciones de uso;
 // consultar todos:  node index todos
-// consultar por rut: node index rut 5555864
+// consultar por rut: node index rut - 5555864
 // ingresar datos: node index agregar Abraham 5555864 trompeta quinto
 // actualizar datos: node index actualizar 5555864 piano sexto
 // eliminar datos: node index eliminar - 5555864
